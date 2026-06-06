@@ -1,80 +1,73 @@
-body {
+/* RESET */
+* {
   margin: 0;
-  height: 100vh;
-  background: linear-gradient(
-    180deg,
-    #878274,
-    #24221a
-  );
-  /* background-size: 400% 400%;
-  animation: gradientBG 12s ease infinite; */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  font-family: Arial, sans-serif;
-}
-
-/* @keyframes gradientBG {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-} */
-
-.text-btn {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 20px;
-  cursor: pointer;
   padding: 0;
-  position: fixed;
-  top: 30px;
-  right: 50px;
-}
-a {
-    text-decoration: none;
+  box-sizing: border-box;
 }
 
-.text-btn:hover {
-  color: rgb(176, 173, 173);
+body {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #878274, #24221a);
+  font-family: Arial, sans-serif;
+  color: white;
+  overflow-x: hidden;
 }
 
-h1 {
- color: #e73d17;
-  margin-bottom: 0.5rem;
-  text-shadow: #ada9aa;
-  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-}
-header {
-  flex: 0 0 auto;
-  margin-top: 0%;
-}
-
-button{
-    padding: .875rem 1.25rem;
-    background: #ff8000;
-    font-weight: 500;
-    font-size: .8125rem;
-}
-
-/* Hero section */
+/* HERO SECTION */
 .hero {
-  width: 100vh;     /* FULL screen width */
-  height: 100vh;     /* 50% of screen height */
+  width: 100%;
+  height: 100vh;        /* desktop full screen */
+  max-height: 100vh;
   overflow: hidden;
+  display: flex;
 }
 
-/* Image behaves like cover */
+/* IMAGE */
 .hero img {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* covers width & height perfectly */
+  object-fit: cover;
   display: block;
+}
+
+/* HEADER FIX (if you have fixed button/header) */
+.text-btn {
+  position: fixed;
+  top: 15px;
+  right: 20px;
+  font-size: 18px;
+}
+
+/* =========================
+   📱 MOBILE RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+
+  .hero {
+    height: 60vh;   /* reduce height on mobile */
+  }
+
+  .hero img {
+    object-position: center;
+  }
+
+  body {
+    text-align: center;
+  }
+}
+
+/* =========================
+   📱 SMALL MOBILE
+========================= */
+@media (max-width: 480px) {
+
+  .hero {
+    height: 50vh;
+  }
+
+  .text-btn {
+    font-size: 16px;
+    top: 10px;
+    right: 10px;
+  }
 }
