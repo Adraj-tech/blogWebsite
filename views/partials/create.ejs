@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topic / Subject Form</title>
+    <link rel="stylesheet" href="styles/create.css">
+</head>
+<body>
+
+<div class="form-container">
+    <h2>Submit Your Content</h2>
+
+    <form>
+        <!-- Dropdown -->
+        <label for="type">Choose Type</label>
+        <select id="type" name="type" required>
+            <option value="">-- Select --</option>
+            <option value="topic">Topic</option>
+            <option value="subject">Subject</option>
+        </select>
+
+        <!-- Textarea -->
+        <label for="content">Write Here</label>
+        <textarea 
+            id="content" 
+            name="content" 
+            placeholder="Write up to 2000 words..."
+            required></textarea>
+
+        <!-- Word Counter -->
+        <div class="counter">
+            <span id="wordCount">0</span> / 2000 words
+        </div>
+
+        <button type="submit">Submit</button>
+    </form>
+</div>
+
+<script>
+    const textarea = document.getElementById("content");
+    const wordCount = document.getElementById("wordCount");
+    const maxWords = 2000;
+
+    textarea.addEventListener("input", () => {
+        let words = textarea.value.trim().split(/\s+/).filter(word => word !== "");
+        
+        if (words.length > maxWords) {
+            textarea.value = words.slice(0, maxWords).join(" ");
+            words = words.slice(0, maxWords);
+        }
+
+        wordCount.textContent = words.length;
+    });
+</script>
+
+</body>
+</html>

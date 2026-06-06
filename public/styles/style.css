@@ -1,0 +1,80 @@
+body {
+  margin: 0;
+  height: 100vh;
+  background: linear-gradient(
+    180deg,
+    #878274,
+    #24221a
+  );
+  /* background-size: 400% 400%;
+  animation: gradientBG 12s ease infinite; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+/* @keyframes gradientBG {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+} */
+
+.text-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
+  position: fixed;
+  top: 30px;
+  right: 50px;
+}
+a {
+    text-decoration: none;
+}
+
+.text-btn:hover {
+  color: rgb(176, 173, 173);
+}
+
+h1 {
+ color: #e73d17;
+  margin-bottom: 0.5rem;
+  text-shadow: #ada9aa;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+header {
+  flex: 0 0 auto;
+  margin-top: 0%;
+}
+
+button{
+    padding: .875rem 1.25rem;
+    background: #ff8000;
+    font-weight: 500;
+    font-size: .8125rem;
+}
+
+/* Hero section */
+.hero {
+  width: 100vh;     /* FULL screen width */
+  height: 100vh;     /* 50% of screen height */
+  overflow: hidden;
+}
+
+/* Image behaves like cover */
+.hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* covers width & height perfectly */
+  display: block;
+}

@@ -1,0 +1,229 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>Create Blog</title>
+
+  <style>
+
+    *{
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body{
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    .blog-container{
+      width: 100%;
+      max-width: 900px;
+      background: white;
+      padding: 35px;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .blog-container h1{
+      text-align: center;
+      margin-bottom: 30px;
+      color: #333;
+      font-size: 2rem;
+    }
+
+    .input-group{
+      margin-bottom: 22px;
+    }
+
+    .input-group label{
+      display: block;
+      margin-bottom: 8px;
+      color: #555;
+      font-weight: 600;
+    }
+
+    .input-group input,
+    .input-group textarea{
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 16px;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    .input-group input:focus,
+    .input-group textarea:focus{
+      border-color: #667eea;
+      box-shadow: 0 0 0 4px rgba(102,126,234,0.2);
+    }
+
+    .input-group textarea{
+      resize: none;
+      min-height: 350px;
+      line-height: 1.7;
+    }
+
+    .word-limit{
+      text-align: right;
+      margin-top: 8px;
+      color: gray;
+      font-size: 14px;
+    }
+
+    button{
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: #667eea;
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover{
+      background: #5a67d8;
+      transform: translateY(-2px);
+    }
+
+   
+select{
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  outline: none;
+  transition: 0.3s;
+}
+
+select:focus{
+  border-color: #667eea;
+  box-shadow: 0 0 0 4px rgba(102,126,234,0.2);
+}
+
+
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="blog-container">
+
+    <h1>Create Your Blog</h1>
+
+   ```html id="y0k3lm"
+<form action="/blog" method="POST">
+
+  <!-- Blog Category -->
+  <div class="input-group">
+
+    <label>Select Blog Category</label>
+
+    <select name="title" required>
+
+      <option value="">-- Choose Category --</option>
+
+      <!-- Indian History -->
+      <option value="ANCIENT INDIAN HISTORY">
+        ANCIENT INDIAN HISTORY
+      </option>
+
+      <option value="MEDIEVAL INDIAN HISTORY">
+        MEDIEVAL INDIAN HISTORY
+      </option>
+
+      <option value="MODERN INDIAN HISTORY">
+        MODERN INDIAN HISTORY
+      </option>
+
+      <option value="NATIONAL SCIENCE DAY">
+        NATIONAL SCIENCE DAY
+      </option>
+
+      <!-- Politics -->
+      <option value="BASICS">
+        BASICS
+      </option>
+
+      <option value="CENTRAL GOVERNMENT">
+        CENTRAL GOVERNMENT
+      </option>
+
+      <option value="STATE GOVERNMENT">
+        STATE GOVERNMENT
+      </option>
+
+      <!-- Sports -->
+      <option value="MAJOR SPORTS IN INDIA">
+        MAJOR SPORTS IN INDIA
+      </option>
+
+      <option value="INDIA IN INTERNATIONAL SPORTS">
+        INDIA IN INTERNATIONAL SPORTS
+      </option>
+
+      <option value="SPORTS AWARDS IN INDIA">
+        SPORTS AWARDS IN INDIA
+      </option>
+
+      <!-- Science -->
+      <option value="ISRO">
+        ISRO
+      </option>
+
+      <option value="ATOMIC ENERGY IN INDIA">
+        ATOMIC ENERGY IN INDIA
+      </option>
+
+      <option value="BIOTECHNOLOGY IN INDIA">
+        BIOTECHNOLOGY IN INDIA
+      </option>
+
+    </select>
+
+  </div>
+
+  <!-- Blog Content -->
+  <div class="input-group">
+
+    <label>Write Your Blog</label>
+
+    <textarea
+      name="content"
+      rows="15"
+      placeholder="Write your blog here..."
+      required
+    ></textarea>
+
+  </div>
+
+  <button type="submit">
+    Publish Blog
+  </button>
+
+</form>
+```
+
+
+  </div>
+
+</body>
+</html>
+

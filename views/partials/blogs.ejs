@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>All Blogs</title>
+
+  <style>
+
+    body{
+      font-family: Arial;
+      background: #f5f5f5;
+      padding: 30px;
+    }
+
+    .blog-card{
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+    }
+
+    .meta{
+      color: gray;
+      margin-bottom: 15px;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+<h1>Public Blogs</h1>
+
+<% blogs.forEach(blog => { %>
+
+  <div class="blog-card">
+
+    <h2><%= blog.title %></h2>
+
+    <div class="meta">
+
+      Written by
+      <strong><%= blog.author_name %></strong>
+
+      <br><br>
+
+      Published on:
+      <%= new Date(blog.created_at).toLocaleString() %>
+
+    </div>
+
+    <p>
+      <%= blog.content %>
+    </p>
+
+  </div>
+
+<% }) %>
+
+</body>
+</html>
