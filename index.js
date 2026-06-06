@@ -4,25 +4,37 @@ import { fileURLToPath } from "url";
 import pg from "pg";
 import bcrypt from "bcrypt";
 import session from "express-session";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const port = 3000;
 
-// PostgreSQL Connection
+const port = process.env.PORT || 3000;
+
+// ================= DATABASE =================
+
 const db = new pg.Client({
-  user: "postgres",
-  host: "localhost",
-  database: "users",
-  password: "@Adarsh9771",
-  port: 5432,
+  connectionString:
+    "postgresql://neondb_owner:npg_IXwnS97ZsOvH@ep-solitary-heart-apxmsjhc.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require",
+
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
 
 db.connect()
-  .then(() => console.log("Connected to PostgreSQL"))
-  .catch((err) => console.error("Database Connection Error:", err));
+  .then(() => {
+    console.log("Connected to Neon PostgreSQL");
+  })
+  .catch((err) => {
+    console.log("Database Connection Error:", err);
+  });
+
+// ================= MIDDLEWARE =================
 
 app.use(express.static("public"));
 
@@ -31,67 +43,53 @@ app.use(express.json());
 
 app.set("view engine", "ejs");
 
-app.use(session({
-  secret: "blogwebsite",
-  resave: false,
-  saveUninitialized: false
-}));
+app.use(
+  session({
+    secret: "blogwebsite",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
+// ================= HOME =================
 
 app.get("/", (req, res) => {
 
   res.render("index", {
-    user: req.session.user
+    user: req.session.user,
   });
 
 });
+
+// ================= SIGNUP =================
+
 app.get("/signup", (req, res) => {
+
   res.render("partials/signup");
+
 });
 
-app.get("/signin", (req, res) => {
-  res.render("partials/signin");
-});
-
-app.get("/create", (req, res) => {
-  res.render("partials/create");
-});    
-
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "partials", "scienceDay.html"));
-});
-  
-// Signup Page
-app.get("/signup", (req, res) => {
-  res.render("signup");
-});
-
-
-// Register User
 app.post("/signup", async (req, res) => {
 
   const { name, email, password } = req.body;
 
-  console.log("Received Data:", req.body);
-
-  // Password Validation
-  const passwordRegex =
-    /^(?=.*[A-Z])(?=.*\d)(?=.*@).{6,}$/;
-
-  if (!passwordRegex.test(password)) {
-
-    return res.send(
-      "Password must contain:<br><br>" +
-      "• At least 6 characters<br>" +
-      "• One uppercase letter<br>" +
-      "• One number<br>" +
-      "• One @ symbol"
-    );
-
-  }
-
   try {
 
-    // Check if email already exists
+    const passwordRegex =
+      /^(?=.*[A-Z])(?=.*\d)(?=.*@).{6,}$/;
+
+    if (!passwordRegex.test(password)) {
+
+      return res.send(
+        "Password must contain:<br><br>" +
+        "• At least 6 characters<br>" +
+        "• One uppercase letter<br>" +
+        "• One number<br>" +
+        "• One @ symbol"
+      );
+
+    }
+
     const existingUser = await db.query(
       "SELECT * FROM users WHERE email = $1",
       [email]
@@ -99,49 +97,44 @@ app.post("/signup", async (req, res) => {
 
     if (existingUser.rows.length > 0) {
 
-      return res.send(
-        "Email already registered!"
-      );
+      return res.send("Email already registered!");
 
     }
 
-    // Hash password
     const hashedPassword =
       await bcrypt.hash(password, 10);
 
-    // Insert user
     await db.query(
-
-      `INSERT INTO users
+      `
+      INSERT INTO users
       (name, email, password)
-      VALUES ($1, $2, $3)`,
 
+      VALUES ($1, $2, $3)
+      `,
       [name, email, hashedPassword]
-
     );
 
-    res.send(
-      "User registered successfully!"
-    );
+    res.redirect("/signin");
 
   } catch (err) {
 
-    console.error(
-      "Registration Error:",
-      err
-    );
+    console.log(err);
 
-    res.status(500).send(
-      err.message
-    );
+    res.send("Registration Error");
 
   }
 
 });
 
+// ================= SIGNIN =================
 
-// SIGN IN
- app.post("/signin", async (req, res) => {
+app.get("/signin", (req, res) => {
+
+  res.render("partials/signin");
+
+});
+
+app.post("/signin", async (req, res) => {
 
   const { email, password } = req.body;
 
@@ -153,7 +146,9 @@ app.post("/signup", async (req, res) => {
     );
 
     if (result.rows.length === 0) {
+
       return res.send("User not found!");
+
     }
 
     const user = result.rows[0];
@@ -163,87 +158,114 @@ app.post("/signup", async (req, res) => {
       user.password
     );
 
-    if (isMatch) {
+    if (!isMatch) {
 
-      req.session.user = user;
-
-      res.redirect("/");
-
-    } else {
-
-      res.send("Incorrect Password");
+      return res.send("Incorrect Password");
 
     }
+
+    req.session.user = user;
+
+    res.redirect("/");
 
   } catch (err) {
 
     console.log(err);
+
     res.send("Server Error");
 
   }
 
 });
-//BLOG
+
+// ================= BLOG PAGE =================
+
 app.get("/blog", (req, res) => {
 
-  if(!req.session.user){
+  if (!req.session.user) {
+
     return res.redirect("/signin");
+
   }
 
-  res.render("blog");
+  res.render("blog", {
+    user: req.session.user,
+  });
 
 });
 
 app.post("/blog", async (req, res) => {
 
-  if(!req.session.user){
+  if (!req.session.user) {
+
     return res.redirect("/signin");
+
   }
 
   const { title, content } = req.body;
 
   const user = req.session.user;
 
-  await db.query(
-    `INSERT INTO blogs
-    (title, content, author_email, author_name)
-    VALUES($1,$2,$3,$4)`,
+  try {
 
-    [
-      title,
-      content,
-      user.email,
-      user.name
-    ]
-  );
+    await db.query(
+      `
+      INSERT INTO blogs
+      (title, content, author_email, author_name)
 
-  res.redirect("/blogs");
+      VALUES ($1, $2, $3, $4)
+      `,
+      [
+        title,
+        content,
+        user.email,
+        user.name,
+      ]
+    );
+
+    res.redirect("/blogs");
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.send("Error Saving Blog");
+
+  }
 
 });
 
-// PUBLIC BLOG
+// ================= ALL BLOGS =================
+
 app.get("/blogs", async (req, res) => {
 
   try {
 
     const result = await db.query(
-      "SELECT * FROM blogs ORDER BY created_at DESC"
+      `
+      SELECT *
+      FROM blogs
+
+      ORDER BY created_at DESC
+      `
     );
 
     res.render("partials/blogs", {
-      blogs: result.rows
+      blogs: result.rows,
+      user: req.session.user,
     });
 
   } catch (err) {
 
     console.log(err);
+
     res.send("Error Loading Blogs");
 
   }
 
 });
 
-// VIEW
+// ================= SINGLE BLOG =================
 
 app.get("/blogs/:title", async (req, res) => {
 
@@ -252,34 +274,42 @@ app.get("/blogs/:title", async (req, res) => {
   try {
 
     const result = await db.query(
-      "SELECT * FROM blogs WHERE title = $1",
+      `
+      SELECT *
+      FROM blogs
+
+      WHERE title = $1
+      `,
       [title]
     );
 
     res.render("partials/blogs", {
       blogs: result.rows,
-      user: req.session.user
+      user: req.session.user,
     });
 
   } catch (err) {
 
     console.log(err);
 
-    res.send("Error Loading Blogs");
+    res.send("Error Loading Blog");
 
   }
 
 });
 
-// LOGOUT
+// ================= LOGOUT =================
 
 app.get("/logout", (req, res) => {
 
   req.session.destroy((err) => {
 
-    if(err){
+    if (err) {
+
       console.log(err);
+
       return res.send("Error Logging Out");
+
     }
 
     res.redirect("/");
@@ -288,7 +318,11 @@ app.get("/logout", (req, res) => {
 
 });
 
+// ================= SERVER =================
 
 app.listen(port, () => {
+
   console.log(`Server running on port ${port}`);
+
 });
+
