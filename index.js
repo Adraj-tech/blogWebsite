@@ -14,8 +14,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-
 const port = process.env.PORT || 3000;
+
+/* ================= EMAIL ================= */
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -24,7 +25,8 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
-// ================= DATABASE =================
+
+/* ================= DATABASE ================= */
 
 const db = new pg.Client({
   connectionString: process.env.DATABASE_URL,
@@ -33,40 +35,25 @@ const db = new pg.Client({
   },
 });
 
-const connectDB = async () => {
+const startServer = async () => {
   try {
     await db.connect();
     console.log("Connected to Neon PostgreSQL");
+
+    app.listen(port, () => {
+      console.log(`Server running on ${port}`);
+    });
+
   } catch (err) {
-    console.error("Database Connection Error:", err);
-    process.exit(1);
+    console.error("DB Connection Error:", err);
   }
 };
 
-connectDB();
-// =================  VERIFICATION =================
-const token = uuidv4();
+startServer();
 
-await db.query(
-  `INSERT INTO users (name,email,password,verification_token,is_verified)
-   VALUES ($1,$2,$3,$4,false)`,
-  [name, email, hashedPassword, token]
-);
-
-const link = `http://localhost:${port}/verify/${token}`;
-
-await transporter.sendMail({
-  to: email,
-  subject: "Verify Email",
-  html: `<a href="${link}">Verify Account</a>`,
-});
-
-
-
-// ================= MIDDLEWARE =================
+/* ================= MIDDLEWARE ================= */
 
 app.use(express.static("public"));
-
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -80,43 +67,28 @@ app.use(
   })
 );
 
-// ================= HOME =================
+/* ================= HOME ================= */
 
 app.get("/", (req, res) => {
-
   res.render("index", {
     user: req.session.user,
   });
-
 });
 
-// ================= SIGNUP =================
+/* ================= SIGNUP ================= */
 
 app.get("/signup", (req, res) => {
-
   res.render("partials/signup");
-
 });
 
 app.post("/signup", async (req, res) => {
-
   const { name, email, password } = req.body;
 
   try {
-
-    const passwordRegex =
-      /^(?=.*[A-Z])(?=.*\d)(?=.*@).{6,}$/;
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*@).{6,}$/;
 
     if (!passwordRegex.test(password)) {
-
-      return res.send(
-        "Password must contain:<br><br>" +
-        "• At least 6 characters<br>" +
-        "• One uppercase letter<br>" +
-        "• One number<br>" +
-        "• One @ symbol"
-      );
-
+      return res.send("Weak password");
     }
 
     const existingUser = await db.query(
@@ -125,174 +97,140 @@ app.post("/signup", async (req, res) => {
     );
 
     if (existingUser.rows.length > 0) {
-
       return res.send("Email already registered!");
-
     }
 
-    const hashedPassword =
-      await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const token = uuidv4();
 
     await db.query(
-      `
-      INSERT INTO users
-      (name, email, password)
-
-      VALUES ($1, $2, $3)
-      `,
-      [name, email, hashedPassword]
+      `INSERT INTO users (name, email, password, verification_token, is_verified)
+       VALUES ($1, $2, $3, $4, false)`,
+      [name, email, hashedPassword, token]
     );
 
-    res.redirect("/signin");
+    const link = `http://localhost:${port}/verify/${token}`;
+
+    await transporter.sendMail({
+      to: email,
+      subject: "Verify Email",
+      html: `<a href="${link}">Verify Your Account</a>`,
+    });
+
+    res.send("Check your email to verify account");
 
   } catch (err) {
-
     console.log(err);
-
     res.send("Registration Error");
-
   }
-
 });
 
-// ================= SIGNIN =================
+/* ================= VERIFY EMAIL ================= */
+
+app.get("/verify/:token", async (req, res) => {
+  const { token } = req.params;
+
+  try {
+    const result = await db.query(
+      "SELECT * FROM users WHERE verification_token=$1",
+      [token]
+    );
+
+    if (result.rows.length === 0) {
+      return res.send("Invalid verification link");
+    }
+
+    await db.query(
+      `UPDATE users
+       SET is_verified=true, verification_token=NULL
+       WHERE verification_token=$1`,
+      [token]
+    );
+
+    res.send("Email verified successfully!");
+  } catch (err) {
+    console.log(err);
+    res.send("Verification Error");
+  }
+});
+
+/* ================= SIGNIN ================= */
 
 app.get("/signin", (req, res) => {
-
   res.render("partials/signin");
-
 });
 
 app.post("/signin", async (req, res) => {
-
   const { email, password } = req.body;
 
   try {
-
     const result = await db.query(
       "SELECT * FROM users WHERE email = $1",
       [email]
     );
 
     if (result.rows.length === 0) {
-
       return res.send("User not found!");
-
     }
 
     const user = result.rows[0];
 
-    const isMatch = await bcrypt.compare(
-      password,
-      user.password
-    );
+    if (!user.is_verified) {
+      return res.send("Please verify your email first");
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-
       return res.send("Incorrect Password");
-
     }
-    if (!user.is_verified) {
-  return res.send("Please verify your email first");
-}
 
     req.session.user = user;
 
     res.redirect("/");
 
   } catch (err) {
-
     console.log(err);
-
     res.send("Server Error");
-
   }
-
-});
-// ================= VERIFY =================
-app.get("/verify/:token", async (req, res) => {
-  const { token } = req.params;
-
-  await db.query(
-    `UPDATE users
-     SET is_verified=true, verification_token=NULL
-     WHERE verification_token=$1`,
-    [token]
-  );
-
-  res.send("Email verified successfully");
 });
 
-// ================= BLOG PAGE =================
+/* ================= BLOG ================= */
 
 app.get("/blog", (req, res) => {
-
-  if (!req.session.user) {
-
-    return res.redirect("/signin");
-
-  }
+  if (!req.session.user) return res.redirect("/signin");
 
   res.render("blog", {
     user: req.session.user,
   });
-
 });
 
 app.post("/blog", async (req, res) => {
-
-  if (!req.session.user) {
-
-    return res.redirect("/signin");
-
-  }
+  if (!req.session.user) return res.redirect("/signin");
 
   const { title, content } = req.body;
-
   const user = req.session.user;
 
   try {
-
     await db.query(
-      `
-      INSERT INTO blogs
-      (title, content, author_email, author_name)
-
-      VALUES ($1, $2, $3, $4)
-      `,
-      [
-        title,
-        content,
-        user.email,
-        user.name,
-      ]
+      `INSERT INTO blogs (title, content, author_email, author_name)
+       VALUES ($1, $2, $3, $4)`,
+      [title, content, user.email, user.name]
     );
 
     res.redirect("/blogs");
-
   } catch (err) {
-
     console.log(err);
-
     res.send("Error Saving Blog");
-
   }
-
 });
 
-// ================= ALL BLOGS =================
+/* ================= ALL BLOGS ================= */
 
 app.get("/blogs", async (req, res) => {
-
   try {
-
     const result = await db.query(
-      `
-      SELECT *
-      FROM blogs
-
-      ORDER BY created_at DESC
-      `
+      `SELECT * FROM blogs ORDER BY created_at DESC`
     );
 
     res.render("partials/blogs", {
@@ -301,30 +239,19 @@ app.get("/blogs", async (req, res) => {
     });
 
   } catch (err) {
-
     console.log(err);
-
     res.send("Error Loading Blogs");
-
   }
-
 });
 
-// ================= SINGLE BLOG =================
+/* ================= SINGLE BLOG ================= */
 
 app.get("/blogs/:title", async (req, res) => {
-
   const title = req.params.title;
 
   try {
-
     const result = await db.query(
-      `
-      SELECT *
-      FROM blogs
-
-      WHERE title = $1
-      `,
+      "SELECT * FROM blogs WHERE title=$1",
       [title]
     );
 
@@ -334,42 +261,16 @@ app.get("/blogs/:title", async (req, res) => {
     });
 
   } catch (err) {
-
     console.log(err);
-
     res.send("Error Loading Blog");
-
   }
-
 });
 
-// ================= LOGOUT =================
+/* ================= LOGOUT ================= */
 
 app.get("/logout", (req, res) => {
-
   req.session.destroy((err) => {
-
-    if (err) {
-
-      console.log(err);
-
-      return res.send("Error Logging Out");
-
-    }
-
+    if (err) return res.send("Logout Error");
     res.redirect("/");
-
   });
-
 });
-
-// ================= SERVER =================
-
-app.listen(port, () => {
-
-  console.log(`Server running on port ${port}`);
-
-});
-
-
-
