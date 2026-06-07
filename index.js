@@ -44,20 +44,23 @@ await transporter.sendMail({
 // ================= DATABASE =================
 
 const db = new pg.Client({
-  connectionString:process.env.DATABASE_URL,
-    
+  connectionString: process.env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: false,
   },
 });
 
-db.connect()
-  .then(() => {
+const connectDB = async () => {
+  try {
+    await db.connect();
     console.log("Connected to Neon PostgreSQL");
-  })
-  .catch((err) => {
-    console.log("Database Connection Error:", err);
-  });
+  } catch (err) {
+    console.error("Database Connection Error:", err);
+    process.exit(1);
+  }
+};
+
+connectDB();
 
 // ================= MIDDLEWARE =================
 
