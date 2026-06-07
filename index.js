@@ -5,6 +5,8 @@ import pg from "pg";
 import bcrypt from "bcrypt";
 import session from "express-session";
 import dotenv from "dotenv";
+import nodemailer from "nodemailer";
+import { v4 as uuidv4 } from "uuid";
 
 dotenv.config();
 
@@ -14,6 +16,30 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 const port = process.env.PORT || 3000;
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+// =================  VERIFICATION =================
+const token = uuidv4();
+
+await db.query(
+  `INSERT INTO users (name,email,password,verification_token,is_verified)
+   VALUES ($1,$2,$3,$4,false)`,
+  [name, email, hashedPassword, token]
+);
+
+const link = `http://localhost:${port}/verify/${token}`;
+
+await transporter.sendMail({
+  to: email,
+  subject: "Verify Email",
+  html: `<a href="${link}">Verify Account</a>`,
+});
 
 // ================= DATABASE =================
 
@@ -162,6 +188,9 @@ app.post("/signin", async (req, res) => {
       return res.send("Incorrect Password");
 
     }
+    if (!user.is_verified) {
+  return res.send("Please verify your email first");
+}
 
     req.session.user = user;
 
@@ -175,6 +204,19 @@ app.post("/signin", async (req, res) => {
 
   }
 
+});
+// ================= VERIFY =================
+app.get("/verify/:token", async (req, res) => {
+  const { token } = req.params;
+
+  await db.query(
+    `UPDATE users
+     SET is_verified=true, verification_token=NULL
+     WHERE verification_token=$1`,
+    [token]
+  );
+
+  res.send("Email verified successfully");
 });
 
 // ================= BLOG PAGE =================
