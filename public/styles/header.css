@@ -17,21 +17,7 @@ body{
 
 /* ================= NAVBAR ================= */
 
-.custom-navbar{
-
-  background:
-  linear-gradient(
-    90deg,
-    #ff9933,
-    #ffffff,
-    #138808
-  ) !important;
-
-  padding:12px 18px;
-
-  box-shadow:
-  0 4px 15px rgba(0,0,0,0.08);
-}
+.custom-navbar{ background: linear-gradient(90deg,#ff9933,#ffffff,#138808) !important; }
 
 .navbar-brand{
 
