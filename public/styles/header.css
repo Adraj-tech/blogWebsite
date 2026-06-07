@@ -9,7 +9,7 @@
 }
 
 /* ================= NAVBAR ================= */
-
+/* 
 .custom-navbar{
   background: linear-gradient(90deg,#ff9933,#ffffff,#138808) !important;
 }
@@ -31,10 +31,86 @@
 
 /* Welcome Text */
 
-.welcome-text{
+/* .welcome-text{
   font-weight:700;
   color:#111 !important;
+} */ */
+
+
+/* ================= NAVBAR ================= */
+
+
+
+
+.custom-navbar{
+
+  /* Transparent */
+
+  background: rgba(0,0,0,0.15) !important;
+
+  /* Blur Effect */
+
+  backdrop-filter: blur(8px);
+
+  -webkit-backdrop-filter: blur(8px);
+
+  /* Remove hard strip look */
+
+  border-bottom:
+  1px solid rgba(255,255,255,0.08);
+
+  padding:14px 18px;
+
+  transition:0.3s ease;
 }
+
+/* Navbar Text */
+
+.navbar-brand{
+
+  font-weight:600;
+
+  color:white !important;
+
+  letter-spacing:1px;
+
+  text-shadow:
+  0 2px 10px rgba(0,0,0,0.6);
+
+  transition:0.3s;
+}
+
+.navbar-brand:hover{
+  transform:scale(1.03);
+}
+
+/* Welcome Text */
+
+.welcome-text{
+  font-weight:700;
+  color:white !important;
+}
+
+/* Hamburger */
+
+.navbar-toggler{
+  border:none;
+  padding:6px;
+}
+
+.navbar-toggler:focus{
+  box-shadow:none;
+}
+
+/* White Hamburger Icon */
+
+.navbar-toggler-icon{
+
+  filter:
+  brightness(0) invert(1);
+
+}
+
 
 /* ================= TOGGLER ================= */
 
