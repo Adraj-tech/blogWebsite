@@ -18,8 +18,9 @@ const port = process.env.PORT || 3000;
 // ================= DATABASE =================
 
 const db = new pg.Client({
-  connectionString:process.env.DATABASE_URL,
-    
+  connectionString:
+    "postgresql://neondb_owner:npg_IXwnS97ZsOvH@ep-solitary-heart-apxmsjhc.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require",
+
   ssl: {
     rejectUnauthorized: false,
   },
@@ -44,7 +45,7 @@ app.set("view engine", "ejs");
 
 app.use(
   session({
-    secret: process.env.SESSION_SECRET,
+    secret: "blogwebsite",
     resave: false,
     saveUninitialized: false,
   })
