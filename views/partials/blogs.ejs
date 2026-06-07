@@ -1,27 +1,129 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>All Blogs</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
 
   <style>
 
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
+
     body{
-      font-family: Arial;
-      background: #f5f5f5;
-      padding: 30px;
+      background:#f4f6fb;
+      font-family:'Inter', sans-serif;
+      padding:50px 20px;
+      color:#222;
+    }
+
+    .page-title{
+      text-align:center;
+      font-size:3rem;
+      margin-bottom:50px;
+      font-family:'Merriweather', serif;
+      color:#111;
+    }
+
+    .blogs-container{
+      max-width:950px;
+      margin:auto;
     }
 
     .blog-card{
-      background: white;
-      padding: 20px;
-      margin-bottom: 20px;
-      border-radius: 10px;
+      background:white;
+      padding:45px;
+      margin-bottom:40px;
+      border-radius:20px;
+
+      box-shadow:
+      0 5px 20px rgba(0,0,0,0.06);
+
+      transition:0.3s ease;
+    }
+
+    .blog-card:hover{
+      transform:translateY(-4px);
+    }
+
+    .blog-title{
+      font-size:2.3rem;
+      margin-bottom:18px;
+      font-family:'Merriweather', serif;
+      line-height:1.3;
+      color:#111;
     }
 
     .meta{
-      color: gray;
-      margin-bottom: 15px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:20px;
+
+      font-size:15px;
+      color:#777;
+
+      margin-bottom:30px;
+      padding-bottom:20px;
+
+      border-bottom:1px solid #eee;
+    }
+
+    .author{
+      font-weight:600;
+      color:#444;
+    }
+
+    .blog-content{
+      font-family:'Merriweather', serif;
+
+      font-size:1.12rem;
+
+      line-height:2.1;
+
+      letter-spacing:0.2px;
+
+      color:#2d2d2d;
+
+      white-space:pre-line;
+    }
+
+    .blog-content p{
+      margin-bottom:25px;
+    }
+
+    @media(max-width:768px){
+
+      body{
+        padding:30px 15px;
+      }
+
+      .page-title{
+        font-size:2.2rem;
+      }
+
+      .blog-card{
+        padding:28px;
+      }
+
+      .blog-title{
+        font-size:1.8rem;
+      }
+
+      .blog-content{
+        font-size:1rem;
+        line-height:1.9;
+      }
     }
 
   </style>
@@ -30,33 +132,46 @@
 
 <body>
 
-<h1>Public Blogs</h1>
+  <h1 class="page-title">
+    Public Blogs
+  </h1>
 
-<% blogs.forEach(blog => { %>
+  <div class="blogs-container">
 
-  <div class="blog-card">
+    <% blogs.forEach(blog => { %>
 
-    <h2><%= blog.title %></h2>
+      <div class="blog-card">
 
-    <div class="meta">
+        <h2 class="blog-title">
+          <%= blog.title %>
+        </h2>
 
-      Written by
-      <strong><%= blog.author_name %></strong>
+        <div class="meta">
 
-      <br><br>
+          <div>
+            Written by
+            <span class="author">
+              <%= blog.author_name %>
+            </span>
+          </div>
 
-      Published on:
-      <%= new Date(blog.created_at).toLocaleString() %>
+          <div>
+            Published on:
+            <%= new Date(blog.created_at).toLocaleString() %>
+          </div>
 
-    </div>
+        </div>
 
-    <p>
-      <%= blog.content %>
-    </p>
+        <div class="blog-content">
+          <%= blog.content %>
+        </div>
+
+      </div>
+
+    <% }) %>
 
   </div>
 
-<% }) %>
-
 </body>
 </html>
+
