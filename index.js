@@ -24,23 +24,6 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
-// =================  VERIFICATION =================
-const token = uuidv4();
-
-await db.query(
-  `INSERT INTO users (name,email,password,verification_token,is_verified)
-   VALUES ($1,$2,$3,$4,false)`,
-  [name, email, hashedPassword, token]
-);
-
-const link = `http://localhost:${port}/verify/${token}`;
-
-await transporter.sendMail({
-  to: email,
-  subject: "Verify Email",
-  html: `<a href="${link}">Verify Account</a>`,
-});
-
 // ================= DATABASE =================
 
 const db = new pg.Client({
@@ -61,6 +44,24 @@ const connectDB = async () => {
 };
 
 connectDB();
+// =================  VERIFICATION =================
+const token = uuidv4();
+
+await db.query(
+  `INSERT INTO users (name,email,password,verification_token,is_verified)
+   VALUES ($1,$2,$3,$4,false)`,
+  [name, email, hashedPassword, token]
+);
+
+const link = `http://localhost:${port}/verify/${token}`;
+
+await transporter.sendMail({
+  to: email,
+  subject: "Verify Email",
+  html: `<a href="${link}">Verify Account</a>`,
+});
+
+
 
 // ================= MIDDLEWARE =================
 
